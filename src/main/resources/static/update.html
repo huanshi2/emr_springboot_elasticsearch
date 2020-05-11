@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改客户信息</title>
+    <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm-extend.min.css">
+    <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm.min.css">
+</head>
+<body>
+<div align="center">
+    <h1>修改客户信息</h1>
+</div>
+<div align="center">
+    <input type="text" id="c_id" hidden><br>
+    <label>客户姓名</label><br>
+    <input type="text" id="c_name"><br>
+    <label>客户电话</label><br>
+    <input type="text" id="c_telephone"><br>
+    <label>客户地址</label><br>
+    <input type="text" id="c_address"><br>
+    <label>备注</label><br>
+    <input type="text" id="c_remark"><br>
+    <a href="list.html"><input type="button" value="返回"></a>
+    <input type="submit" id="sub">
+</div>
+</body>
+<script type='text/javascript' src='//g.alicdn.com/sj/lib/zepto/zepto.min.js' charset='utf-8'></script>
+<script type='text/javascript' src='//g.alicdn.com/msui/sm/0.6.2/js/sm.min.js' charset='utf-8'></script>
+<script type='text/javascript' src='//g.alicdn.com/msui/sm/0.6.2/js/sm-extend.min.js' charset='utf-8'></script>
+<script src='/common/common.js' charset='utf-8'></script>
+
+<script>
+    $(function () {
+        //getQueryString 获取url中的id值 在common.js中封装的方法
+        let c_id = getQueryString("c_id");
+        let url = '/customer/getbyid?c_id=' + c_id;
+        getCustomer();
+
+        //根据id获取数据
+        function getCustomer() {
+            $.getJSON(url, function (data) {
+                if (data.success) {
+                    $("#c_id").val(data.customer.c_id);
+                    $("#c_name").val(data.customer.c_name);
+                    $("#c_telephone").val(data.customer.c_telephone);
+                    $("#c_address").val(data.customer.c_address);
+                    $("#c_remark").val(data.customer.c_remark);
+                } else {
+                    $.toast(data.errMsg);
+                }
+            });
+            //修改数据
+            $('#sub').click(function () {
+                let c = {};
+                c.c_id = $("#c_id").val();
+                c.c_name = $("#c_name").val();
+                c.c_telephone = $("#c_telephone").val();
+                c.c_address = $("#c_address").val();
+                c.c_remark = $("#c_remark").val();
+                $.ajax({
+                   url:'/customer/updatecustomer',
+                    type:'post',
+                    dataType:'json',
+                    contentType:'application/json',
+                    data: JSON.stringify(c),
+                    success:function (data) {
+                       if(data.success){
+                           $.toast('修改成功');
+                           // window.location.reload();
+                       }else {
+                           $.toast(data.errMsg);
+                       }
+
+                    }
+                });
+            });
+        }
+
+    })
+</script>
+</html>

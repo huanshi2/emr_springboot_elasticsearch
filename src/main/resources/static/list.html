@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>客户信息列表</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm-extend.min.css">
+    <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm.min.css">
+
+</head>
+<body style="overflow-y:scroll;">
+
+    <div align="center">
+        <h1>客户信息列表</h1>
+        <a href="save.html">添加客户信息</a><br/>
+        <a href="index.html">登录页</a><br/>
+    </div>
+    <div align="center">
+        <input type="text" id="name" placeholder="请输入客户姓名">
+        <input type="submit" value="查询" id="submit">
+    </div>
+    <table align="center">
+        <thead>
+        <tr>
+            <th>客户姓名</th>
+            <th>客户电话</th>
+            <th>客户地址</th>
+            <th>备注</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody class="customerList">
+        <tr class="customer">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="container">
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+                <ul class="pagination">
+                    <li>
+                        <a href="#" id="fir">首页</a>
+                    </li>
+                    <li>
+                        <a href="#" id="pre">上一页</a>
+                    </li>
+                    <li>
+                        <a href="#" id="ps"></a>
+                    </li>
+
+                    <li>
+                        <a href="#" id="nex">下一页</a>
+                    </li>
+                    <li>
+                        <a href="#" id="las">尾页</a>
+                    </li>
+                    <li>
+                        总数量
+                        <input type="text" id="count">
+                    </li>
+                    <br>
+                    <li>
+                        总页数
+                        <input type="text" id="pages">
+                    </li>
+                    <br>
+                    <li>
+                        <input type="number" id="gonum">
+                        页
+                        <input type="button" onclick="" id="go" value="go">
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    </body>
+    <script type='text/javascript' src='//g.alicdn.com/sj/lib/zepto/zepto.min.js' charset='utf-8'></script>
+    <script type='text/javascript' src='//g.alicdn.com/msui/sm/0.6.2/js/sm.min.js' charset='utf-8'></script>
+    <script type='text/javascript' src='//g.alicdn.com/msui/sm/0.6.2/js/sm-extend.min.js' charset='utf-8'></script>
+    <script>
+        let pageNum = 1;
+        let pageSize = 5;
+
+        function getList(_pageNum) {
+            if (_pageNum) pageNum = _pageNum
+
+            //返回列表数据+分页
+            $.ajax({
+                url: `/customer/getcustomerlist?pageNum=${pageNum}&pageSize=${pageSize}`,
+                type: 'get',
+                success: function (data) {
+                    let html = '';
+                    if (data.success) {
+                        data.customerList.map(function (item, index) {
+                            html += '<tr class="customer">'
+                                // + '<td>' + (index+1) + '</td>'
+                                + '<td>' + item.c_name + '</td>'
+                                + '<td>' + item.c_telephone + '</td>'
+                                + '<td>' + item.c_address + '</td>'
+                                + '<td>' + item.c_remark + '</td>'
+                                + '<td><a href="#"  class="del" data-id="' + item.c_id + '">删除&nbsp;</a></td>&nbsp;'
+                                + '<td><a href="/update.html?c_id=' + item.c_id + '" >修改</a></td>'
+                            '</tr>'
+                        });
+                        $(".customerList").html(html);
+                        let num = '';
+                        for (let i = 1; i <= data.pageInfo.pages; i++) {
+                            num += '<a href="#" id="ps" onclick="getList(' + i + ')">' + i + '</a>&nbsp;&nbsp;&nbsp;'
+                        }
+                        $("#ps").html(num);
+                        //总数
+                        $("#count").val(data.pageInfo.total);
+                        //总页
+                        $("#pages").val(data.pageInfo.pages);
+                        //上一页
+                        pre = '<a href="#" id="pre" class="disabled" onclick="getList(' + data.pageInfo.prePage + ')">上一页</a>';
+                        $("#pre").html(pre);
+                        //下一页
+                        nex = '<a href="#" id="nex" onclick="getList(' + data.pageInfo.nextPage + ')">下一页</a>';
+                        $("#nex").html(nex);
+                        //首页
+                        let firPage = data.pageInfo.navigateFirstPage
+                        fir = '<a href="#" id="fir" onclick="getList(' + firPage + ')">首页</a>';
+                        $("#fir").html(fir);
+                        //尾页
+                        let lasPage = data.pageInfo.navigateLastPage
+                        las = '<a href="#" id="las" onclick="getList(' + lasPage + ')">尾页</a>';
+                        $("#las").html(las);
+                        //分页查询
+                        $("#go").click(function () {
+                            let _pageNum = $('#gonum').val();
+                            getList(_pageNum);
+
+                        });
+                    }
+                }
+
+            });
+        }
+        getList();
+
+        //删除
+        $(".customerList").on('click', '.del',
+            function (e) {
+                let target = e.currentTarget;
+                $.confirm('确定要删除吗？', function () {
+                    $.ajax({
+                        url: '/customer/del',
+                        type: 'post',
+                        data: {
+                            cid: target.dataset.id
+                        },
+                        success: function (data) {
+                            if (data.success) {
+                                $.toast("删除成功");
+                            } else {
+                                $.toast(data.errMsg);
+                            }
+                        }
+                    });
+                });
+
+            });
+
+        //按名称查询
+        $("#submit").click(function () {
+            $.ajax({
+                url: '/customer/getCus',
+                type: 'get',
+                data: {
+                    name: $('#name').val()
+                },
+                success: function (data) {
+                    if (data.success) {
+                        let html = '';
+                        data.customerList.map(function (item, index) {
+                            html += '<tr class="customer">'
+                                + '<td>' + (index + 1) + '</td>'
+                                + '<td>' + item.c_name + '</td>'
+                                + '<td>' + item.c_telephone + '</td>'
+                                + '<td>' + item.c_address + '</td>'
+                                + '<td>' + item.c_remark + '</td>'
+                                + '<td><a href="#"  class="del" data-id="' + item.c_id + '">删除</a></td>'
+                            '</tr>'
+                        });
+                        $(".customerList").html(html);
+                    } else {
+                        $.toast(data.errMsg);
+                    }
+
+                }
+            });
+        });
+    </script>
+</html>

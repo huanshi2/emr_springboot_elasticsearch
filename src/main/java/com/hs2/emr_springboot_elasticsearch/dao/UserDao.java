@@ -1,6 +1,6 @@
 package com.hs2.emr_springboot_elasticsearch.dao;
 
-import com.project.terminal.entity.User;
+import com.hs2.emr_springboot_elasticsearch.entity.User;
 import org.springframework.stereotype.Repository;
 
 @Repository
