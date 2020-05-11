@@ -13,7 +13,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerDao customerDao;
 
-
     @Override
     public List<Customer> getCustomerList() {
         return customerDao.queryCustomerList();

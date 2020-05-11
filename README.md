@@ -19,6 +19,9 @@ https://www.jianshu.com/p/8db6b73fb0c9
    </dependency>
 ```
 
+mybatis 插入中文乱码
+
+https://www.cnblogs.com/shadow-shine/p/10549741.html
 
 
 

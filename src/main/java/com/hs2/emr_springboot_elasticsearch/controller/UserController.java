@@ -1,7 +1,8 @@
 package com.hs2.emr_springboot_elasticsearch.controller;
 
-import com.project.terminal.entity.User;
-import com.project.terminal.service.UserService;
+import com.hs2.emr_springboot_elasticsearch.entity.User;
+import com.hs2.emr_springboot_elasticsearch.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

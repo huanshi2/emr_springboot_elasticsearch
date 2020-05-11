@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.project.terminal.dao.CustomerDao">
-    <resultMap id="BaseMap" type="com.project.terminal.entity.Customer">
+<mapper namespace="com.hs2.emr_springboot_elasticsearch.dao.CustomerDao">
+    <resultMap id="BaseMap" type="com.hs2.emr_springboot_elasticsearch.entity.Customer">
         <id column="c_id" property="c_id"/>
         <result column="c_name" property="c_name"/>
         <result column="c_telephone" property="c_telephone"/>
@@ -20,15 +20,11 @@
     </delete>
     <insert id="addCustomer" useGeneratedKeys="false" keyColumn="" keyProperty="c_id" parameterType="Customer">
       insert into customer
-      (c_name,c_telephone,c_address,c_remark)
-      values
-      (
-      #{c_name},#{c_telephone},#{c_address},#{c_remark}
-      )
+      (c_name,c_telephone,c_address,c_remark) values (#{c_name},#{c_telephone},#{c_address},#{c_remark})
     </insert>
+
     <select id="queryCustomer" parameterType="String" resultMap="BaseMap">
         select * from customer where c_name like '%${c_name}%';
-
     </select>
 
     <select id="queryById" parameterType="int" resultType="Customer">
@@ -39,26 +35,24 @@
         update customer
         <set>
 
-
             <if test="c_name!=null and c_name!=''">
                 c_name=#{c_name},
-
             </if>
+
             <if test="c_telephone!=null and c_telephone!=''">
                 c_telephone=#{c_telephone},
-
             </if>
             <if test="c_address!=null and c_address!=''">
                 c_address=#{c_address},
-
             </if>
+
             <if test="c_remark!=null and c_remark!=''">
                 c_remark=#{c_remark},
-
             </if>
+
         </set>
 
-        where
-        c_id=#{c_id}
+        where c_id=#{c_id}
+
     </update>
 </mapper>

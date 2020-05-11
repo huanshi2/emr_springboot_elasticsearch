@@ -4,14 +4,14 @@ server:
 spring:
  datasource:
    name: wjfdb
-   url: jdbc:mysql://localhost:3306/wjfdb
+   url: jdbc:mysql://localhost:3306/wjfdb?useUnicode=true&characterEncoding=utf8
    username: root
    password: yourpassword
    driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
-   mapper-locations: classpath:mapper/*.xml  #注意：一定要对应mapper映射xml文件的所在路径
    type-aliases-package: com.hs2.emr_springboot_elasticsearch.entity  # 注意：对应实体类的路径
+   mapper-locations: classpath:mapper/*.xml  #注意：一定要对应mapper映射xml文件的所在路径
 
 pagehelper:
    helperDialect: mysql
