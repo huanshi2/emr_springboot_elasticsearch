@@ -23,5 +23,16 @@ mybatis 插入中文乱码
 
 https://www.cnblogs.com/shadow-shine/p/10549741.html
 
+`Local variable 'client' is redundant`
+
+问题解决：
+
+https://stackoverflow.com/questions/26436155/local-variable-is-redundant-java
 
 
+search 参数
+https://blog.csdn.net/weixin_34409357/article/details/85075760
+
+范围查询
+
+https://www.jianshu.com/p/827d04132eba

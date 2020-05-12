@@ -7,8 +7,16 @@ import java.util.List;
 
 public interface ESService {
 
-    List<EmployeeDTO> query(EmployeeVO employeeVO);
+    List<EmployeeDTO> ExistQuery(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> rangeQuery(EmployeeVO employeeVO);
 
     List<EmployeeDTO> queryAll();
+
+    List<EmployeeDTO> create(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> update(EmployeeVO employeeVO);
+
+
 
 }

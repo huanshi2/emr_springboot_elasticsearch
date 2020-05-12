@@ -20,15 +20,29 @@ public class EsController {
     @Resource
     private ESService esService;
 
-    @RequestMapping("/query")
-    public List<EmployeeDTO> query(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.query(employeeVO);
+    @RequestMapping("/rangeQuery")
+    public List<EmployeeDTO> rangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.rangeQuery(employeeVO);
+    }
+
+    @RequestMapping("/ExistQuery")
+    public List<EmployeeDTO> ExistQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.ExistQuery(employeeVO);
     }
 
     @RequestMapping("/queryAll")
     public List<EmployeeDTO> queryAll() {
-
         return esService.queryAll();
+    }
+
+    @RequestMapping("/delete")
+    public List<EmployeeDTO> delete(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.queryAll();
+    }
+
+    @RequestMapping("/updateData")
+    public List<EmployeeDTO> update(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.update(employeeVO);
     }
 
 

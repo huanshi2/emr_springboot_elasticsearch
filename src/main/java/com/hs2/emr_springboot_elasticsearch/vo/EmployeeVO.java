@@ -9,10 +9,14 @@ public class EmployeeVO {
 
     private Long age;
 
-    private String first_name;
+    private String name;
 
-    private String last_name;
+    private String sex;
 
-    private String disease;
+    private String birthday;
+
+    private String message;
+
+    private long ageMax;
 
 }
