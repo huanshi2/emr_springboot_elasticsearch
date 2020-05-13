@@ -7,7 +7,7 @@ public class EmployeeVO {
 
     private String id;
 
-    private Long age;
+    private String age;
 
     private String name;
 
@@ -17,6 +17,10 @@ public class EmployeeVO {
 
     private String message;
 
-    private long ageMax;
+    private String ageMax;
+
+    private String index;
+
+    private String type;
 
 }

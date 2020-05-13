@@ -6,6 +6,7 @@ import com.hs2.emr_springboot_elasticsearch.vo.EmployeeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -20,9 +21,14 @@ public class EsController {
     @Resource
     private ESService esService;
 
+    @RequestMapping(value = "/CreateIndex")
+    public String CreateIndex(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.CreateIndex(employeeVO);
+    }
+
     @RequestMapping("/rangeQuery")
-    public List<EmployeeDTO> rangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.rangeQuery(employeeVO);
+    public List<EmployeeDTO> RangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.RangeQuery(employeeVO);
     }
 
     @RequestMapping("/ExistQuery")
@@ -40,9 +46,14 @@ public class EsController {
         return esService.queryAll();
     }
 
-    @RequestMapping("/updateData")
+    @RequestMapping("/update")
     public List<EmployeeDTO> update(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.update(employeeVO);
+    }
+
+    @RequestMapping("/addData")
+    public List<EmployeeDTO> addData(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.addData(employeeVO);
     }
 
 

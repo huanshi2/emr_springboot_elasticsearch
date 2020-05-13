@@ -13,8 +13,6 @@ public class EmployeeDTO {
 
     private String sex;
 
-    private String birthday;
-
     private String message;
 
 

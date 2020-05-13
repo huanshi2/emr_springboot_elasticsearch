@@ -9,13 +9,15 @@ public interface ESService {
 
     List<EmployeeDTO> ExistQuery(EmployeeVO employeeVO);
 
-    List<EmployeeDTO> rangeQuery(EmployeeVO employeeVO);
+    List<EmployeeDTO> RangeQuery(EmployeeVO employeeVO);
 
     List<EmployeeDTO> queryAll();
 
-    List<EmployeeDTO> create(EmployeeVO employeeVO);
+    String CreateIndex(EmployeeVO employeeVO);
 
     List<EmployeeDTO> update(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> addData(EmployeeVO employeeVO);
 
 
 

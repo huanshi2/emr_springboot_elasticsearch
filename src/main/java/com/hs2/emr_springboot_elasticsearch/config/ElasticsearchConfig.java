@@ -24,7 +24,7 @@ public class ElasticsearchConfig {
     @Value("${spring.es.scheme}")
     private String scheme;
 
-    @Bean
+    @Bean(destroyMethod = "close")
     public RestHighLevelClient client() {
         //设置es节点的配置信息
         //在Elasticsearch 7.0.0 版本字后改配置已经过时不建议使用，
@@ -36,6 +36,7 @@ public class ElasticsearchConfig {
         //创建客户端连接ES 创建Bean对象, 当有多个集群时 可以创建多个 HttpHost, 指定不同的集群地址，本文只是为了学习只做了单实例的安装
         return new RestHighLevelClient(RestClient.builder(new HttpHost(host, port, scheme)));
     }
+
 }
 
 

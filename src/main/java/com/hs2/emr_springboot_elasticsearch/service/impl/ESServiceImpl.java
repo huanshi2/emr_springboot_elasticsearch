@@ -8,6 +8,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -20,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,16 +36,65 @@ public class ESServiceImpl implements ESService {
     private static final Logger logger = LoggerFactory.getLogger(ESServiceImpl.class);
 
     @Autowired
+    @Resource
     private RestHighLevelClient client;
 
     @Override
-    public List<EmployeeDTO> create(EmployeeVO employeeVO) {
+    public List<EmployeeDTO> update(@RequestBody EmployeeVO employeeVO) {
         return null;
     }
 
     @Override
-    public List<EmployeeDTO> update(EmployeeVO employeeVO) {
-        return null;
+    public String CreateIndex(@RequestBody EmployeeVO employeeVO) {
+        String response = null;
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("properties")
+                    .startObject()
+                    .field("id").startObject().field("type", "text").endObject()
+                    .field("name").startObject().field("type", "text").endObject()
+                    .field("age").startObject().field("type", "integer").endObject()
+                    .field("sex").startObject().field("type", "text").endObject()
+                    .field("message").startObject().field("type", "text").field("analyzer", "ik_max_word").endObject()
+                    .endObject()
+                    .endObject();
+
+            CreateIndexRequest request = new CreateIndexRequest(employeeVO.getIndex());
+            request.settings(Settings.builder().put("number_of_shards", 1).put("number_of_replicas", 0));
+            request.mapping(builder);
+            CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
+
+            response = "索引: " + employeeVO.getIndex() + "创建成功，返回：" + createIndexResponse.isAcknowledged();
+
+            client.close();
+
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        return response;
+    }
+
+    @Override
+    public List<EmployeeDTO> addData(EmployeeVO employeeVO) {
+        List<EmployeeDTO> list = new ArrayList<>();
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("properties")
+                    .startObject()
+                    .field("id").startObject().field("index", "false").field("type", "integer").endObject()
+                    .field("name").startObject().field("index", "true").field("type", "text").endObject()
+                    .field("age").startObject().field("index", "false").field("type", "integer").endObject()
+                    .field("sex").startObject().field("index", "false").field("type", "text").endObject()
+                    .field("message").startObject().field("index", "true").field("type", "text").field("analyzer", "ik_max_word").endObject()
+                    .endObject()
+                    .endObject();
+
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        return list;
     }
 
     @Override
@@ -83,6 +138,9 @@ public class ESServiceImpl implements ESService {
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
+
+            client.close();
+
         } catch (IOException e) {
             logger.error(e.toString());
         }
@@ -90,7 +148,7 @@ public class ESServiceImpl implements ESService {
     }
 
     @Override
-    public List<EmployeeDTO> rangeQuery(@RequestBody EmployeeVO employeeVO) {
+    public List<EmployeeDTO> RangeQuery(@RequestBody EmployeeVO employeeVO) {
 
         List<EmployeeDTO> list = new ArrayList<>();
         try {
@@ -144,6 +202,9 @@ public class ESServiceImpl implements ESService {
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
+
+            client.close();
+
         } catch (IOException e) {
             logger.error(e.toString());
         }
@@ -176,6 +237,8 @@ public class ESServiceImpl implements ESService {
                 EmployeeDTO employeeDTO = JSON.parseObject(str.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
+
+            client.close();
 
         } catch (IOException e) {
         }
