@@ -4,6 +4,8 @@ import com.hs2.emr_springboot_elasticsearch.dto.EmployeeDTO;
 import com.hs2.emr_springboot_elasticsearch.service.ESService;
 import com.hs2.emr_springboot_elasticsearch.vo.EmployeeVO;
 import com.alibaba.fastjson.JSON;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -67,8 +69,6 @@ public class ESServiceImpl implements ESService {
 
             response = "索引: " + employeeVO.getIndex() + "创建成功，返回：" + createIndexResponse.isAcknowledged();
 
-            client.close();
-
         } catch (IOException e) {
             logger.error(e.toString());
         }
@@ -81,15 +81,16 @@ public class ESServiceImpl implements ESService {
         try {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()
-                    .field("properties")
-                    .startObject()
-                    .field("id").startObject().field("index", "false").field("type", "integer").endObject()
-                    .field("name").startObject().field("index", "true").field("type", "text").endObject()
-                    .field("age").startObject().field("index", "false").field("type", "integer").endObject()
-                    .field("sex").startObject().field("index", "false").field("type", "text").endObject()
-                    .field("message").startObject().field("index", "true").field("type", "text").field("analyzer", "ik_max_word").endObject()
-                    .endObject()
+                    .field("id",employeeVO.getId())
+                    .field("name",employeeVO.getName())
+                    .field("age",employeeVO.getAge())
+                    .field("sex",employeeVO.getSex())
+                    .field("message",employeeVO.getMessage())
                     .endObject();
+            IndexRequest request = new IndexRequest(employeeVO.getIndex(),"_doc",employeeVO.getId());
+            request.source(builder);
+
+            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 
         } catch (IOException e) {
             logger.error(e.toString());
@@ -138,8 +139,6 @@ public class ESServiceImpl implements ESService {
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
-
-            client.close();
 
         } catch (IOException e) {
             logger.error(e.toString());
@@ -202,8 +201,6 @@ public class ESServiceImpl implements ESService {
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
-
-            client.close();
 
         } catch (IOException e) {
             logger.error(e.toString());
