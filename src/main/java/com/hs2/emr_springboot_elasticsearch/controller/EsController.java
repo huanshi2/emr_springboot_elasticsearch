@@ -26,6 +26,11 @@ public class EsController {
         return esService.CreateIndex(employeeVO);
     }
 
+    @RequestMapping(value = "/DeleteIndex")
+    public String DeleteIndex(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.DeleteIndex(employeeVO);
+    }
+
     @RequestMapping("/rangeQuery")
     public List<EmployeeDTO> RangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.RangeQuery(employeeVO);

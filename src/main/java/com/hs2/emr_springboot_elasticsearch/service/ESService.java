@@ -15,9 +15,12 @@ public interface ESService {
 
     String CreateIndex(EmployeeVO employeeVO);
 
+    String DeleteIndex(EmployeeVO employeeVO);
+
     List<EmployeeDTO> update(EmployeeVO employeeVO);
 
     List<EmployeeDTO> addData(EmployeeVO employeeVO);
+
 
 
 
