@@ -41,6 +41,11 @@ public class EsController {
         return esService.UpdateData(employeeVO);
     }
 
+    @RequestMapping("/DeleteData")
+    public String DeleteData(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.DeleteData(employeeVO);
+    }
+
     @RequestMapping("/rangeQuery")
     public List<EmployeeDTO> RangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.RangeQuery(employeeVO);

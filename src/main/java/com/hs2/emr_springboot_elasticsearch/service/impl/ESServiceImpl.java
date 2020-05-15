@@ -5,6 +5,8 @@ import com.hs2.emr_springboot_elasticsearch.service.ESService;
 import com.hs2.emr_springboot_elasticsearch.vo.EmployeeVO;
 import com.alibaba.fastjson.JSON;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -141,6 +143,24 @@ public class ESServiceImpl implements ESService {
             RestStatus acknowledged = updateresponse.status();
 
             response = "索引: " + employeeVO.getIndex() + "/_doc/" + employeeVO.getId() + " 修改成功，返回：" + acknowledged;
+
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        return response;
+    }
+
+    @Override
+    public String DeleteData(@RequestBody EmployeeVO employeeVO) {
+        String response = null;
+        try {
+            DeleteRequest request = new DeleteRequest(employeeVO.getIndex(),"_doc",employeeVO.getId());
+
+            DeleteResponse deleteresponse = client.delete(request, RequestOptions.DEFAULT);
+
+            RestStatus acknowledged = deleteresponse.status();
+
+            response = "索引: " + employeeVO.getIndex() + "/_doc/" + employeeVO.getId() + " 删除成功，返回：" + acknowledged;
 
         } catch (IOException e) {
             logger.error(e.toString());

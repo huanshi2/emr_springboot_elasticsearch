@@ -21,5 +21,7 @@ public interface ESService {
 
     String UpdateData(EmployeeVO employeeVO);
 
+    String DeleteData(EmployeeVO employeeVO);
+
 
 }
