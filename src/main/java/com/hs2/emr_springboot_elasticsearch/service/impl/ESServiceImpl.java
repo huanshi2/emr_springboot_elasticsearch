@@ -10,6 +10,8 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
@@ -19,6 +21,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -42,13 +45,6 @@ public class ESServiceImpl implements ESService {
     @Autowired
     @Resource
     private RestHighLevelClient client;
-
-
-
-    @Override
-    public List<EmployeeDTO> update(@RequestBody EmployeeVO employeeVO) {
-        return null;
-    }
 
     @Override
     public String CreateIndex(@RequestBody EmployeeVO employeeVO) {
@@ -98,8 +94,8 @@ public class ESServiceImpl implements ESService {
     }
 
     @Override
-    public List<EmployeeDTO> addData(EmployeeVO employeeVO) {
-        List<EmployeeDTO> list = new ArrayList<>();
+    public String AddData(EmployeeVO employeeVO) {
+        String response = null;
         try {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()
@@ -112,12 +108,44 @@ public class ESServiceImpl implements ESService {
             IndexRequest request = new IndexRequest(employeeVO.getIndex(),"_doc",employeeVO.getId());
             request.source(builder);
 
-            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+            IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
+
+            RestStatus acknowledged = indexResponse.status();
+
+            response = "索引: " + employeeVO.getIndex() + "/_doc/" + employeeVO.getId() + " 添加成功，返回：" + acknowledged;
 
         } catch (IOException e) {
             logger.error(e.toString());
         }
-        return list;
+        return response;
+    }
+
+    @Override
+    public String UpdateData(@RequestBody EmployeeVO employeeVO) {
+        String response = null;
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("id",employeeVO.getId())
+                    .field("name",employeeVO.getName())
+                    .field("age",employeeVO.getAge())
+                    .field("sex",employeeVO.getSex())
+                    .field("message",employeeVO.getMessage())
+                    .endObject();
+
+            UpdateRequest request = new UpdateRequest(employeeVO.getIndex(),"_doc",employeeVO.getId());
+            request.doc(builder);
+
+            UpdateResponse updateresponse = client.update(request, RequestOptions.DEFAULT);
+
+            RestStatus acknowledged = updateresponse.status();
+
+            response = "索引: " + employeeVO.getIndex() + "/_doc/" + employeeVO.getId() + " 修改成功，返回：" + acknowledged;
+
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        return response;
     }
 
     @Override
@@ -253,6 +281,7 @@ public class ESServiceImpl implements ESService {
             SearchHit[] hits1 = hits.getHits();
 
             for (SearchHit str : hits1) {
+
                 EmployeeDTO employeeDTO = JSON.parseObject(str.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }

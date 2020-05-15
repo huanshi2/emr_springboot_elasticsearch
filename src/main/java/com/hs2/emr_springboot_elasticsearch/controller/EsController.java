@@ -31,6 +31,16 @@ public class EsController {
         return esService.DeleteIndex(employeeVO);
     }
 
+    @RequestMapping("/AddData")
+    public String addData(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.AddData(employeeVO);
+    }
+
+    @RequestMapping("/UpdateData")
+    public String UpdateData(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.UpdateData(employeeVO);
+    }
+
     @RequestMapping("/rangeQuery")
     public List<EmployeeDTO> RangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.RangeQuery(employeeVO);
@@ -49,16 +59,6 @@ public class EsController {
     @RequestMapping("/delete")
     public List<EmployeeDTO> delete(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.queryAll();
-    }
-
-    @RequestMapping("/update")
-    public List<EmployeeDTO> update(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.update(employeeVO);
-    }
-
-    @RequestMapping("/addData")
-    public List<EmployeeDTO> addData(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.addData(employeeVO);
     }
 
 
