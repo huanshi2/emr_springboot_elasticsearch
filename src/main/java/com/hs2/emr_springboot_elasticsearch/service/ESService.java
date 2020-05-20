@@ -7,23 +7,28 @@ import java.util.List;
 
 public interface ESService {
 
-    List<EmployeeDTO> ExistQuery(EmployeeVO employeeVO);
-
-    List<EmployeeDTO> RangeQuery(EmployeeVO employeeVO);
-
-    List<EmployeeDTO> queryAll(EmployeeVO employeeVO);
-
+    //增
     String CreateIndex(EmployeeVO employeeVO);
-
-    String DeleteIndex(EmployeeVO employeeVO);
-
     String AddData(EmployeeVO employeeVO);
 
-    String UpdateData(EmployeeVO employeeVO);
-
+    //删
+    String DeleteIndex(EmployeeVO employeeVO);
     String DeleteData(EmployeeVO employeeVO);
 
+    //改
+    String UpdateData(EmployeeVO employeeVO);
+
+
+    //查
+    List<EmployeeDTO> queryAll(EmployeeVO employeeVO);
+
     List<EmployeeDTO> SearchQuery(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> MatchSearch(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> MutimatchSearch(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> RangeQuery(EmployeeVO employeeVO);
 
 
 }

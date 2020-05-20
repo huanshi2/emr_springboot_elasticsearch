@@ -29,5 +29,9 @@ public class EmployeeVO {
 
     private long SmallerNumber;
 
+    private String matchtext;
+
+    private String matchpercent;
+
 
 }

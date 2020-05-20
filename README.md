@@ -1,3 +1,11 @@
+待解决问题：
+
+1. spring data 注解优化
+https://github.com/bigseaa/elasticsearch-demo/blob/1da035060bc4ecd1cc4b8ad6dcd14f486d1c51c5/src/test/java/com/bigsea/domain/Something.java#L10
+
+2. 搜索工厂模式的创建
+
+3. 
 
 
 https://www.cnblogs.com/dubhlinn/p/12157278.html

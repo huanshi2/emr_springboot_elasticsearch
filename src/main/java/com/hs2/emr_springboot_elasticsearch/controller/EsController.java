@@ -21,19 +21,26 @@ public class EsController {
     @Resource
     private ESService esService;
 
+    //增
     @RequestMapping(value = "/CreateIndex")
     public String CreateIndex(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.CreateIndex(employeeVO);
     }
 
+    @RequestMapping("/AddData")
+    public String addData(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.AddData(employeeVO);
+    }
+
+    //删
     @RequestMapping(value = "/DeleteIndex")
     public String DeleteIndex(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.DeleteIndex(employeeVO);
     }
 
-    @RequestMapping(value = "/SearchQuery")
-    public List<EmployeeDTO> SearchQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.SearchQuery(employeeVO);
+    @RequestMapping("/DeleteData")
+    public String DeleteData(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.DeleteData(employeeVO);
     }
 
 //    @RequestMapping("/AddData")
@@ -55,19 +62,31 @@ public class EsController {
 //        return modelMap;
 //    }
 
-    @RequestMapping("/AddData")
-    public String addData(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.AddData(employeeVO);
-    }
-
+    //改
     @RequestMapping("/UpdateData")
     public String UpdateData(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.UpdateData(employeeVO);
     }
 
-    @RequestMapping("/DeleteData")
-    public String DeleteData(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.DeleteData(employeeVO);
+    //查
+    @RequestMapping("/queryAll")
+    public List<EmployeeDTO> queryAll(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.queryAll(employeeVO);
+    }
+
+    @RequestMapping(value = "/SearchQuery")
+    public List<EmployeeDTO> SearchQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.SearchQuery(employeeVO);
+    }
+
+    @RequestMapping("/MatchSearch")
+    public List<EmployeeDTO> MatchSearch(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.MatchSearch(employeeVO);
+    }
+
+    @RequestMapping("/MutimatchSearch")
+    public List<EmployeeDTO> MutimatchSearch(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.MutimatchSearch(employeeVO);
     }
 
     @RequestMapping("/RangeQuery")
@@ -75,20 +94,7 @@ public class EsController {
         return esService.RangeQuery(employeeVO);
     }
 
-    @RequestMapping("/ExistQuery")
-    public List<EmployeeDTO> ExistQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.ExistQuery(employeeVO);
-    }
 
-    @RequestMapping("/queryAll")
-    public List<EmployeeDTO> queryAll(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.queryAll(employeeVO);
-    }
-
-    @RequestMapping("/delete")
-    public List<EmployeeDTO> delete(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.queryAll(employeeVO);
-    }
 
 
 }

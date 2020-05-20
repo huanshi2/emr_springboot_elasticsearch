@@ -21,6 +21,7 @@ import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -170,13 +171,76 @@ public class ESServiceImpl implements ESService {
     }
 
     @Override
-    public List<EmployeeDTO> ExistQuery(@RequestBody EmployeeVO employeeVO) {
+    public List<EmployeeDTO> queryAll(@RequestBody(required = false) EmployeeVO employeeVO) {
+
+        List<EmployeeDTO> list = new ArrayList<>();
+        // 创建并设置SearchRequest对象
+        SearchRequest searchRequest = new SearchRequest();
+        // 设置request要搜索的索引和类型
+        searchRequest.indices(employeeVO.getIndex());
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.fetchSource(new String[]{"id","age","name","sex","message"},new String[]{});
+
+        searchSourceBuilder.from(0);
+        searchSourceBuilder.size(100);
+
+        try {
+            searchRequest.source(searchSourceBuilder);
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHits hits = searchResponse.getHits();
+            SearchHit[] hits1 = hits.getHits();
+
+            for (SearchHit str : hits1) {
+                EmployeeDTO employeeDTO = JSON.parseObject(str.getSourceAsString(), EmployeeDTO.class);
+                list.add(employeeDTO);
+            }
+
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        return list;
+    }
+
+    public List<EmployeeDTO> SearchQuery(EmployeeVO employeeVO){
+        /**
+         * @description: term query查询 该查询为精确查询（不会对查询条件进行分词），在查询时会以查询条件整体去匹配词库中的词（分词后的单个词）
+         * @Param: [employeeVO]
+         * @Return: java.util.List<com.hs2.emr_springboot_elasticsearch.dto.EmployeeDTO>
+         * @Author: huanshi2
+         * @Date: 2020/5/20 11:53
+         */
+        List<EmployeeDTO> list = new ArrayList<>();
+        // 基础设置
+        SearchRequest searchRequest = new SearchRequest(employeeVO.getIndex());
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.termQuery("name", employeeVO.getName()));
+        searchRequest.source(searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits hits = searchResponse.getHits();
+            // 得到匹配度高的文档
+            SearchHit[] searchHits = hits.getHits();
+            for (SearchHit hit : searchHits) {
+                System.out.println(hit.getSourceAsString());
+                EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
+                list.add(employeeDTO);
+            }
+        }catch (IOException e){
+            logger.error(e.toString());
+        }
+
+        return list;
+    }
+
+    @Override
+    public List<EmployeeDTO> MatchSearch(@RequestBody EmployeeVO employeeVO) {
         List<EmployeeDTO> list = new ArrayList<>();
         try {
             // 创建并设置SearchRequest对象
             SearchRequest searchRequest = new SearchRequest();
             // 设置request要搜索的索引和类型
-            searchRequest.indices("student","teacher").types("classone","classtwo");
+            searchRequest.indices(employeeVO.getIndex()).types(employeeVO.getType());
             // 创建并设置SearchSourceBuilder对象
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             //从第几页开始
@@ -188,18 +252,72 @@ public class ESServiceImpl implements ESService {
             //输出结果排序 升序/降序
             searchSourceBuilder.sort("age", SortOrder.ASC);
 
-            QueryBuilder matchQueryBuilder = QueryBuilders.existsQuery("name").queryName(employeeVO.getName());
+            // 写法一：会将"spring实战"分成两个词，只有要有一个匹配成功，则返回该文档(Operator.OR)
+            //searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring实战").operator(Operator.OR));
 
-            SearchSourceBuilder query = searchSourceBuilder.query(matchQueryBuilder);
+            // 写法二:只要有两个词匹配成功，则返回文档（如果是3个词，则是0.7*3，向下取整得到2，匹配到两个词则返回文档）
+            searchSourceBuilder.query(QueryBuilders.matchQuery("message", employeeVO.getMessage())
+                    .minimumShouldMatch(employeeVO.getMatchpercent()));
 
             searchRequest.source(searchSourceBuilder);
-
+            // 发起请求，获取结果
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
-            System.out.println("searchRequest = " + searchRequest);
-            System.out.println("query = " + query);
 
-            //System.out.println("searchResponse = " + searchResponse);
+            System.out.println("searchRequest = " + searchRequest);
+            System.out.println("searchSourceBuilder = " + searchSourceBuilder);
+            System.out.println("searchResponse = " + searchResponse);
+
+            //查询响应中取出结果
+            SearchHits hits = searchResponse.getHits();
+            SearchHit[] searchHits = hits.getHits();
+
+            for (SearchHit hit : searchHits) {
+                //System.out.println(hit.getSourceAsString());
+                EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
+                list.add(employeeDTO);
+            }
+
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        return list;
+    }
+
+    @Override
+    public List<EmployeeDTO> MutimatchSearch(@RequestBody EmployeeVO employeeVO) {
+        List<EmployeeDTO> list = new ArrayList<>();
+        try {
+            // 创建并设置SearchRequest对象
+            SearchRequest searchRequest = new SearchRequest();
+            // 设置request要搜索的索引和类型
+            searchRequest.indices(employeeVO.getIndex()).types(employeeVO.getType());
+            // 创建并设置SearchSourceBuilder对象
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            //限定需要的字段和不需要的字段
+            searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","birthday","message"},new String[]{});
+            //输出结果排序 升序/降序
+            searchSourceBuilder.sort("age", SortOrder.ASC);
+
+            // matchQuery（以name、descrption两个域为搜索域，并且至少匹配到70%的词）
+            // field:添加一个字段以特定的增强值进行多重匹配。
+            MultiMatchQueryBuilder multiMatchQueryBuilder =
+                    QueryBuilders.multiMatchQuery(employeeVO.getMatchtext(), "message","name")
+                            .minimumShouldMatch("70%")
+                            .field("name", 10);
+
+            searchSourceBuilder.query(multiMatchQueryBuilder);
+
+            // 给搜索请求对象设置搜索源
+            searchRequest.source(searchSourceBuilder);
+
+            // 发起请求，获取结果
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+
+            System.out.println("searchRequest = " + searchRequest);
+            System.out.println("searchSourceBuilder = " + searchSourceBuilder);
+            System.out.println("searchResponse = " + searchResponse);
 
             //查询响应中取出结果
             SearchHits hits = searchResponse.getHits();
@@ -241,68 +359,6 @@ public class ESServiceImpl implements ESService {
         return list;
     }
 
-    @Override
-    public List<EmployeeDTO> queryAll(@RequestBody(required = false) EmployeeVO employeeVO) {
-
-        List<EmployeeDTO> list = new ArrayList<>();
-        // 创建并设置SearchRequest对象
-        SearchRequest searchRequest = new SearchRequest();
-        // 设置request要搜索的索引和类型
-        searchRequest.indices(employeeVO.getIndex());
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.fetchSource(new String[]{"id","age","name","sex","message"},new String[]{});
-
-        searchSourceBuilder.from(0);
-        searchSourceBuilder.size(100);
-
-        try {
-            searchRequest.source(searchSourceBuilder);
-            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-
-            SearchHits hits = searchResponse.getHits();
-            SearchHit[] hits1 = hits.getHits();
-
-            for (SearchHit str : hits1) {
-                EmployeeDTO employeeDTO = JSON.parseObject(str.getSourceAsString(), EmployeeDTO.class);
-                list.add(employeeDTO);
-            }
-
-        } catch (IOException e) {
-            logger.error(e.toString());
-        }
-        return list;
-    }
-
-    public List<EmployeeDTO> SearchQuery(EmployeeVO employeeVO){
-        /**
-        * @description: term query查询 该查询为精确查询（不会对查询条件进行分词），在查询时会以查询条件整体去匹配词库中的词（分词后的单个词）
-        * @Param: [employeeVO]
-        * @Return: java.util.List<com.hs2.emr_springboot_elasticsearch.dto.EmployeeDTO>
-        * @Author: huanshi2
-        * @Date: 2020/5/20 11:53
-        */
-        List<EmployeeDTO> list = new ArrayList<>();
-        // 基础设置
-        SearchRequest searchRequest = new SearchRequest(employeeVO.getIndex());
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery("name", employeeVO.getName()));
-        searchRequest.source(searchSourceBuilder);
-        try {
-            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-            SearchHits hits = searchResponse.getHits();
-            // 得到匹配度高的文档
-            SearchHit[] searchHits = hits.getHits();
-            for (SearchHit hit : searchHits) {
-                System.out.println(hit.getSourceAsString());
-                EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
-                list.add(employeeDTO);
-            }
-        }catch (IOException e){
-            logger.error(e.toString());
-        }
-
-        return list;
-    }
 
 
 }
