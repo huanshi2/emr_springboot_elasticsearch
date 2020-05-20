@@ -1,16 +1,16 @@
 package com.hs2.emr_springboot_elasticsearch.controller;
 
 import com.hs2.emr_springboot_elasticsearch.dto.EmployeeDTO;
+import com.hs2.emr_springboot_elasticsearch.entity.User;
 import com.hs2.emr_springboot_elasticsearch.service.ESService;
 import com.hs2.emr_springboot_elasticsearch.vo.EmployeeVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -31,6 +31,30 @@ public class EsController {
         return esService.DeleteIndex(employeeVO);
     }
 
+    @RequestMapping(value = "/SearchQuery")
+    public List<EmployeeDTO> SearchQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.SearchQuery(employeeVO);
+    }
+
+//    @RequestMapping("/AddData")
+//    public Map<String, Object> AddData(@RequestParam(required = false) EmployeeVO employeeVO) {
+//        Map<String, Object> modelMap = new HashMap<>();
+//
+//        EmployeeVO user = new EmployeeVO();
+//        user.setIndex(employeeVO.getIndex());
+//        user.setType(employeeVO.getType());
+//        user.setId(employeeVO.getId());
+//        user.setName(employeeVO.getName());
+//        user.setSex(employeeVO.getSex());
+//        user.setMessage(employeeVO.getMessage());
+//
+//        esService.AddData(user);
+//
+//        modelMap.put("success", false);
+//
+//        return modelMap;
+//    }
+
     @RequestMapping("/AddData")
     public String addData(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.AddData(employeeVO);
@@ -46,7 +70,7 @@ public class EsController {
         return esService.DeleteData(employeeVO);
     }
 
-    @RequestMapping("/rangeQuery")
+    @RequestMapping("/RangeQuery")
     public List<EmployeeDTO> RangeQuery(@RequestBody(required = false) EmployeeVO employeeVO) {
         return esService.RangeQuery(employeeVO);
     }
@@ -57,13 +81,13 @@ public class EsController {
     }
 
     @RequestMapping("/queryAll")
-    public List<EmployeeDTO> queryAll() {
-        return esService.queryAll();
+    public List<EmployeeDTO> queryAll(@RequestBody(required = false) EmployeeVO employeeVO) {
+        return esService.queryAll(employeeVO);
     }
 
     @RequestMapping("/delete")
     public List<EmployeeDTO> delete(@RequestBody(required = false) EmployeeVO employeeVO) {
-        return esService.queryAll();
+        return esService.queryAll(employeeVO);
     }
 
 

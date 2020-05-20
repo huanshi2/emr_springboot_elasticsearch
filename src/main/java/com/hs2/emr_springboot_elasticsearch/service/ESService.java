@@ -11,7 +11,7 @@ public interface ESService {
 
     List<EmployeeDTO> RangeQuery(EmployeeVO employeeVO);
 
-    List<EmployeeDTO> queryAll();
+    List<EmployeeDTO> queryAll(EmployeeVO employeeVO);
 
     String CreateIndex(EmployeeVO employeeVO);
 
@@ -22,6 +22,8 @@ public interface ESService {
     String UpdateData(EmployeeVO employeeVO);
 
     String DeleteData(EmployeeVO employeeVO);
+
+    List<EmployeeDTO> SearchQuery(EmployeeVO employeeVO);
 
 
 }

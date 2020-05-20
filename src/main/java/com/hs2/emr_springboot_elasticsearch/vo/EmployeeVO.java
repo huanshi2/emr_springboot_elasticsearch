@@ -7,7 +7,7 @@ public class EmployeeVO {
 
     private String id;
 
-    private String age;
+    private long age;
 
     private String name;
 
@@ -22,5 +22,12 @@ public class EmployeeVO {
     private String index;
 
     private String type;
+
+    private String queryfield;
+
+    private long LagerNumber;
+
+    private long SmallerNumber;
+
 
 }
