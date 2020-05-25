@@ -4,14 +4,12 @@ import com.hs2.emr_springboot_elasticsearch.dto.EmployeeDTO;
 import com.hs2.emr_springboot_elasticsearch.service.ESService;
 import com.hs2.emr_springboot_elasticsearch.vo.EmployeeVO;
 import com.alibaba.fastjson.JSON;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -22,7 +20,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
@@ -182,9 +179,6 @@ public class ESServiceImpl implements ESService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.fetchSource(new String[]{"id","age","name","sex","message"},new String[]{});
 
-        searchSourceBuilder.from(0);
-        searchSourceBuilder.size(100);
-
         try {
             searchRequest.source(searchSourceBuilder);
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -215,7 +209,7 @@ public class ESServiceImpl implements ESService {
         // 基础设置
         SearchRequest searchRequest = new SearchRequest(employeeVO.getIndex());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery("name", employeeVO.getName()));
+        searchSourceBuilder.query(QueryBuilders.termQuery(employeeVO.getMatchfield(), employeeVO.getName()));
         searchRequest.source(searchSourceBuilder);
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -251,13 +245,13 @@ public class ESServiceImpl implements ESService {
             //限定需要的字段和不需要的字段
             searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","birthday","message"},new String[]{});
             //输出结果排序 升序/降序
-            searchSourceBuilder.sort("age", SortOrder.ASC);
+            searchSourceBuilder.sort(employeeVO.getSortfield(), SortOrder.ASC);
 
             // 写法一：会将"spring实战"分成两个词，只有要有一个匹配成功，则返回该文档(Operator.OR)
             //searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring实战").operator(Operator.OR));
 
             // 写法二:只要有两个词匹配成功，则返回文档（如果是3个词，则是0.7*3，向下取整得到2，匹配到两个词则返回文档）
-            searchSourceBuilder.query(QueryBuilders.matchQuery("message", employeeVO.getMessage())
+            searchSourceBuilder.query(QueryBuilders.matchQuery(employeeVO.getMatchfield(),employeeVO.getMessage())
                     .minimumShouldMatch(employeeVO.getMatchpercent()));
 
             searchRequest.source(searchSourceBuilder);
@@ -298,15 +292,15 @@ public class ESServiceImpl implements ESService {
             //限定需要的字段和不需要的字段
             searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","birthday","message"},new String[]{});
             //输出结果排序 升序/降序
-            searchSourceBuilder.sort("age", SortOrder.ASC);
+            searchSourceBuilder.sort(employeeVO.getSortfield(), SortOrder.ASC);
 
             System.out.println(employeeVO.getMatchtext());
 
             // matchQuery（以name、descrption两个域为搜索域，并且至少匹配到70%的词）
             // field:添加一个字段以特定的增强值进行多重匹配。
             MultiMatchQueryBuilder multiMatchQueryBuilder =
-                    QueryBuilders.multiMatchQuery(employeeVO.getMatchtext(), "message","name")
-                            .minimumShouldMatch("70%")
+                    QueryBuilders.multiMatchQuery(employeeVO.getMatchtext(), employeeVO.getMatchfield(),employeeVO.getMatchfield1())
+                            .minimumShouldMatch(employeeVO.getMatchpercent())
                             .field("name", 10);
 
             searchSourceBuilder.query(multiMatchQueryBuilder);
@@ -348,12 +342,12 @@ public class ESServiceImpl implements ESService {
         searchRequest.indices(employeeVO.getIndex()).types(employeeVO.getType());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","message"},new String[]{});
-        searchSourceBuilder.sort("age", SortOrder.DESC);
+        searchSourceBuilder.sort(employeeVO.getSortfield(), SortOrder.DESC);
 
         System.out.println(employeeVO.getSmallernumber());
 
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders
-                .rangeQuery("age")
+                .rangeQuery(employeeVO.getMatchfield())
                 .from(employeeVO.getSmallernumber()).to(employeeVO.getLagernumber());
 
         searchSourceBuilder.query(rangeQueryBuilder);

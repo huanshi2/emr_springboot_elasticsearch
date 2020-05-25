@@ -27,4 +27,11 @@ public class EmployeeVO {
 
     private String matchpercent;
 
+    private String matchfield;
+
+    private String matchfield1;
+
+    private  String sortfield;
+
+
 }

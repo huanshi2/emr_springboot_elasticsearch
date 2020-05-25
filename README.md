@@ -5,7 +5,7 @@ https://github.com/bigseaa/elasticsearch-demo/blob/1da035060bc4ecd1cc4b8ad6dcd14
 
 2. 搜索工厂模式的创建
 
-3. 
+3. pinyin，同义词，近义词优化
 
 
 https://www.cnblogs.com/dubhlinn/p/12157278.html
