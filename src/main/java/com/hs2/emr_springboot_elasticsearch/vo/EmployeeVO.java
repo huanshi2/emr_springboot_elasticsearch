@@ -13,25 +13,18 @@ public class EmployeeVO {
 
     private String sex;
 
-    private String birthday;
-
     private String message;
-
-    private String ageMax;
 
     private String index;
 
     private String type;
 
-    private String queryfield;
+    private String smallernumber;
 
-    private long LagerNumber;
-
-    private long SmallerNumber;
+    private String lagernumber;
 
     private String matchtext;
 
     private String matchpercent;
-
 
 }

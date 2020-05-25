@@ -24,6 +24,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -203,8 +204,8 @@ public class ESServiceImpl implements ESService {
     }
 
     public List<EmployeeDTO> SearchQuery(EmployeeVO employeeVO){
-        /**
-         * @description: term query查询 该查询为精确查询（不会对查询条件进行分词），在查询时会以查询条件整体去匹配词库中的词（分词后的单个词）
+        /*
+          @description: term query查询 该查询为精确查询（不会对查询条件进行分词），在查询时会以查询条件整体去匹配词库中的词（分词后的单个词）
          * @Param: [employeeVO]
          * @Return: java.util.List<com.hs2.emr_springboot_elasticsearch.dto.EmployeeDTO>
          * @Author: huanshi2
@@ -299,6 +300,8 @@ public class ESServiceImpl implements ESService {
             //输出结果排序 升序/降序
             searchSourceBuilder.sort("age", SortOrder.ASC);
 
+            System.out.println(employeeVO.getMatchtext());
+
             // matchQuery（以name、descrption两个域为搜索域，并且至少匹配到70%的词）
             // field:添加一个字段以特定的增强值进行多重匹配。
             MultiMatchQueryBuilder multiMatchQueryBuilder =
@@ -339,19 +342,39 @@ public class ESServiceImpl implements ESService {
     public List<EmployeeDTO> RangeQuery(@RequestBody EmployeeVO employeeVO) {
 
         List<EmployeeDTO> list = new ArrayList<>();
+
         SearchRequest searchRequest = new SearchRequest();
         // 设置request要搜索的索引和类型
-        searchRequest.indices(employeeVO.getIndex(),employeeVO.getType());
+        searchRequest.indices(employeeVO.getIndex()).types(employeeVO.getType());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.from(0);
-        searchSourceBuilder.size(100);
         searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","message"},new String[]{});
-        searchSourceBuilder.sort("age", SortOrder.ASC);
+        searchSourceBuilder.sort("age", SortOrder.DESC);
+
+        System.out.println(employeeVO.getSmallernumber());
+
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders
+                .rangeQuery("age")
+                .from(employeeVO.getSmallernumber()).to(employeeVO.getLagernumber());
+
+        searchSourceBuilder.query(rangeQueryBuilder);
 
         try {
             searchRequest.source(searchSourceBuilder);
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
+            System.out.println("searchRequest = " + searchRequest);
+            System.out.println("searchSourceBuilder = " + searchSourceBuilder);
+            System.out.println("searchResponse = " + searchResponse);
+
+            //查询响应中取出结果
+            SearchHits hits = searchResponse.getHits();
+            SearchHit[] searchHits = hits.getHits();
+
+            for (SearchHit hit : searchHits) {
+                //System.out.println(hit.getSourceAsString());
+                EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
+                list.add(employeeDTO);
+            }
 
         } catch (IOException e) {
             logger.error(e.toString());

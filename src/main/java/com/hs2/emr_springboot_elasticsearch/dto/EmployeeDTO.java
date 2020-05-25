@@ -15,5 +15,4 @@ public class EmployeeDTO {
 
     private String message;
 
-
 }
