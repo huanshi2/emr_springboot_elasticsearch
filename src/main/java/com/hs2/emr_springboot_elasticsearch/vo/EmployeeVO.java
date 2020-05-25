@@ -31,6 +31,8 @@ public class EmployeeVO {
 
     private String matchfield1;
 
+    private String fieldvalue;
+
     private  String sortfield;
 
 

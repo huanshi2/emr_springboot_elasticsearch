@@ -209,7 +209,7 @@ public class ESServiceImpl implements ESService {
         // 基础设置
         SearchRequest searchRequest = new SearchRequest(employeeVO.getIndex());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.termQuery(employeeVO.getMatchfield(), employeeVO.getName()));
+        searchSourceBuilder.query(QueryBuilders.termQuery(employeeVO.getMatchfield(), employeeVO.getFieldvalue()));
         searchRequest.source(searchSourceBuilder);
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -251,7 +251,7 @@ public class ESServiceImpl implements ESService {
             //searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring实战").operator(Operator.OR));
 
             // 写法二:只要有两个词匹配成功，则返回文档（如果是3个词，则是0.7*3，向下取整得到2，匹配到两个词则返回文档）
-            searchSourceBuilder.query(QueryBuilders.matchQuery(employeeVO.getMatchfield(),employeeVO.getMessage())
+            searchSourceBuilder.query(QueryBuilders.matchQuery(employeeVO.getMatchfield(),employeeVO.getFieldvalue())
                     .minimumShouldMatch(employeeVO.getMatchpercent()));
 
             searchRequest.source(searchSourceBuilder);
@@ -375,7 +375,5 @@ public class ESServiceImpl implements ESService {
         }
         return list;
     }
-
-
 
 }
