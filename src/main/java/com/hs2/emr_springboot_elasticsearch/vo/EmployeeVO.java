@@ -33,7 +33,10 @@ public class EmployeeVO {
 
     private String fieldvalue;
 
-    private  String sortfield;
+    private String sortfield;
 
+    private Integer startpage;
+
+    private Integer endpage;
 
 }

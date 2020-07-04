@@ -102,10 +102,7 @@ public class ESServiceImpl implements ESService {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()
                     .field("id",employeeVO.getId())
-                    .field("name",employeeVO.getName())
-                    .field("age",employeeVO.getAge())
-                    .field("sex",employeeVO.getSex())
-                    .field("message",employeeVO.getMessage())
+                    .field(employeeVO.getFieldvalue(),employeeVO.getMessage())
                     .endObject();
             IndexRequest request = new IndexRequest(employeeVO.getIndex(),"_doc",employeeVO.getId());
             request.source(builder);
@@ -129,10 +126,7 @@ public class ESServiceImpl implements ESService {
             XContentBuilder builder = XContentFactory.jsonBuilder()
                     .startObject()
                     .field("id",employeeVO.getId())
-                    .field("name",employeeVO.getName())
-                    .field("age",employeeVO.getAge())
-                    .field("sex",employeeVO.getSex())
-                    .field("message",employeeVO.getMessage())
+                    .field(employeeVO.getFieldvalue(),employeeVO.getMessage())
                     .endObject();
 
             UpdateRequest request = new UpdateRequest(employeeVO.getIndex(),"_doc",employeeVO.getId());
@@ -177,7 +171,15 @@ public class ESServiceImpl implements ESService {
         // 设置request要搜索的索引和类型
         searchRequest.indices(employeeVO.getIndex());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.fetchSource(new String[]{"id","age","name","sex","message"},new String[]{});
+//        searchSourceBuilder.fetchSource(new String[]{"id","age","name","sex","message"},new String[]{});
+
+        searchSourceBuilder.from(employeeVO.getStartpage());
+        //返回多少条数据
+        searchSourceBuilder.size(employeeVO.getEndpage());
+
+        searchSourceBuilder.sort("id", SortOrder.ASC);
+
+
 
         try {
             searchRequest.source(searchSourceBuilder);
@@ -211,13 +213,20 @@ public class ESServiceImpl implements ESService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.termQuery(employeeVO.getMatchfield(), employeeVO.getFieldvalue()));
         searchRequest.source(searchSourceBuilder);
+
+        searchSourceBuilder.from(employeeVO.getStartpage());
+        //返回多少条数据
+        searchSourceBuilder.size(employeeVO.getEndpage());
+
+        searchSourceBuilder.sort("id", SortOrder.ASC);
+
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHits hits = searchResponse.getHits();
             // 得到匹配度高的文档
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {
-                System.out.println(hit.getSourceAsString());
+
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
@@ -239,13 +248,13 @@ public class ESServiceImpl implements ESService {
             // 创建并设置SearchSourceBuilder对象
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             //从第几页开始
-            searchSourceBuilder.from(0);
+            searchSourceBuilder.from(employeeVO.getStartpage());
             //返回多少条数据
-            searchSourceBuilder.size(10);
+            searchSourceBuilder.size(employeeVO.getEndpage());
             //限定需要的字段和不需要的字段
-            searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","birthday","message"},new String[]{});
+            //searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","birthday","message"},new String[]{});
             //输出结果排序 升序/降序
-            searchSourceBuilder.sort(employeeVO.getSortfield(), SortOrder.ASC);
+            searchSourceBuilder.sort("id", SortOrder.ASC);
 
             // 写法一：会将"spring实战"分成两个词，只有要有一个匹配成功，则返回该文档(Operator.OR)
             //searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring实战").operator(Operator.OR));
@@ -258,17 +267,12 @@ public class ESServiceImpl implements ESService {
             // 发起请求，获取结果
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
-
-            System.out.println("searchRequest = " + searchRequest);
-            System.out.println("searchSourceBuilder = " + searchSourceBuilder);
-            System.out.println("searchResponse = " + searchResponse);
-
             //查询响应中取出结果
             SearchHits hits = searchResponse.getHits();
             SearchHit[] searchHits = hits.getHits();
 
             for (SearchHit hit : searchHits) {
-                //System.out.println(hit.getSourceAsString());
+
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
@@ -290,11 +294,13 @@ public class ESServiceImpl implements ESService {
             // 创建并设置SearchSourceBuilder对象
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             //限定需要的字段和不需要的字段
-            searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","birthday","message"},new String[]{});
-            //输出结果排序 升序/降序
-            searchSourceBuilder.sort(employeeVO.getSortfield(), SortOrder.ASC);
 
-            System.out.println(employeeVO.getMatchtext());
+            //输出结果排序 升序/降序
+            searchSourceBuilder.from(employeeVO.getStartpage());
+            //返回多少条数据
+            searchSourceBuilder.size(employeeVO.getEndpage());
+
+            searchSourceBuilder.sort("id", SortOrder.ASC);
 
             // matchQuery（以name、descrption两个域为搜索域，并且至少匹配到70%的词）
             // field:添加一个字段以特定的增强值进行多重匹配。
@@ -311,17 +317,12 @@ public class ESServiceImpl implements ESService {
             // 发起请求，获取结果
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
-
-            System.out.println("searchRequest = " + searchRequest);
-            System.out.println("searchSourceBuilder = " + searchSourceBuilder);
-            System.out.println("searchResponse = " + searchResponse);
-
             //查询响应中取出结果
             SearchHits hits = searchResponse.getHits();
             SearchHit[] searchHits = hits.getHits();
 
             for (SearchHit hit : searchHits) {
-                //System.out.println(hit.getSourceAsString());
+
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
@@ -341,10 +342,13 @@ public class ESServiceImpl implements ESService {
         // 设置request要搜索的索引和类型
         searchRequest.indices(employeeVO.getIndex()).types(employeeVO.getType());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.fetchSource(new String[]{"_id","age","name","sex","message"},new String[]{});
-        searchSourceBuilder.sort(employeeVO.getSortfield(), SortOrder.DESC);
 
-        System.out.println(employeeVO.getSmallernumber());
+        searchSourceBuilder.from(employeeVO.getStartpage());
+        //返回多少条数据
+        searchSourceBuilder.size(employeeVO.getEndpage());
+
+        searchSourceBuilder.sort("id", SortOrder.ASC);
+
 
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders
                 .rangeQuery(employeeVO.getMatchfield())
@@ -356,16 +360,11 @@ public class ESServiceImpl implements ESService {
             searchRequest.source(searchSourceBuilder);
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
-            System.out.println("searchRequest = " + searchRequest);
-            System.out.println("searchSourceBuilder = " + searchSourceBuilder);
-            System.out.println("searchResponse = " + searchResponse);
-
             //查询响应中取出结果
             SearchHits hits = searchResponse.getHits();
             SearchHit[] searchHits = hits.getHits();
 
             for (SearchHit hit : searchHits) {
-                //System.out.println(hit.getSourceAsString());
                 EmployeeDTO employeeDTO = JSON.parseObject(hit.getSourceAsString(), EmployeeDTO.class);
                 list.add(employeeDTO);
             }
@@ -375,5 +374,4 @@ public class ESServiceImpl implements ESService {
         }
         return list;
     }
-
 }

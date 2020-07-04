@@ -94,7 +94,4 @@ public class EsController {
         return esService.RangeQuery(employeeVO);
     }
 
-
-
-
 }

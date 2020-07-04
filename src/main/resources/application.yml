@@ -6,7 +6,7 @@ spring:
    name: wjfdb
    url: jdbc:mysql://localhost:3306/wjfdb?useUnicode=true&characterEncoding=utf8
    username: root
-   password: yourpassword
+   password: asdfghjkl123
    driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:

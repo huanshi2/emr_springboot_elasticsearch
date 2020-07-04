@@ -34,25 +34,19 @@
     <update id="updateCustomer">
         update customer
         <set>
-
             <if test="c_name!=null and c_name!=''">
                 c_name=#{c_name},
             </if>
-
             <if test="c_telephone!=null and c_telephone!=''">
                 c_telephone=#{c_telephone},
             </if>
             <if test="c_address!=null and c_address!=''">
                 c_address=#{c_address},
             </if>
-
             <if test="c_remark!=null and c_remark!=''">
                 c_remark=#{c_remark},
             </if>
-
         </set>
-
         where c_id=#{c_id}
-
     </update>
 </mapper>
